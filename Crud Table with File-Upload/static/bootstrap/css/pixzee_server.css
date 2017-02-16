@@ -1,0 +1,51 @@
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+.update {
+            color: #333;
+            margin-right: 5px;
+        }
+
+        .remove {
+            color: red;
+            margin-left: 5px;
+        }
+        /*.play {*/
+            /*color: green;*/
+            /*margin-left: 25px;*/
+        /*}*/
+        /*.stop {*/
+            /*color: red;*/
+            /*margin-left: 25px;*/
+            /*display: none;*/
+        /*}*/
+
+        .alert {
+            padding: 0 14px;
+            margin-bottom: 0;
+            display: inline-block;
+        }
+        .progress-bar{
+            display: none;
+        }
+
+        #nameid{
+            display: none;
+        }

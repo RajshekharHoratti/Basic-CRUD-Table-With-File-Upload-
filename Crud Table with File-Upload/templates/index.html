@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRUD TABLE WITH FILE UPLOAD</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-table.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/pixzee_server.css">
+    <script src="/static/bootstrap/js/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap-table.js"></script>
+</head>
+<body>
+<div class="navbar navbar-default">
+    <div class="container">
+        <a class="navbar-brand pull-right">RAJSHEKHAR HOARTTI</a>
+    </div>
+</div>
+<div class="container" style="overflow-x:auto;">
+    <p class="toolbar">
+        <a class="create btn btn-default" href="javascript:"><i class="glyphicon glyphicon-plus"></i> Create Item</a>
+        <span class="alert"></span>
+    </p>
+    <table id="table"
+           data-show-refresh="true"
+           data-show-columns="true"
+           data-search="true"
+           data-query-params="queryParams"
+           data-toolbar=".toolbar">
+        <thead>
+        <tr>
+            <th data-field="name">Name</th>
+            <th data-field="id">ID</th>
+            <th data-field="file">VideoFile</th>
+            <th data-field="action"
+                data-align="center"
+                data-formatter="actionFormatter"
+                data-events="actionEvents">Action
+            </th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<div id="modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" id="nameid2" name="name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" id="idid" name="id" placeholder="ID">
+                </div>
+                <div class="row">
+                    <div class="fileinput fileinput-new col-md-8" data-provides="fileinput">
+                        <span class="btn btn-default btn-file"><span>Choose File</span><input id="fileid" type="file"
+                                                                                              name="file"
+                                                                                              accept="video/mp4"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-8 progress-container">
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar progress-bar-success" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 button-container">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary submit">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalupdate" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" id="updatenameid2" name="name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" id="updateid" name="id" placeholder="ID"
+                           DISABLED>
+                </div>
+                <div class="row">
+                    <div class="fileinput fileinput-new col-md-8" data-provides="fileinput">
+                        <span class="btn btn-default btn-file"><span>Choose File</span><input id="updatefileid" type="file" name="file" accept="video/mp4"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-8 progress-container">
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar progress-bar-success" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 button-container">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary submitupdate">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var API_URL = 'http://' + location.host + '/assets';
+    var API_URL2 = 'http://' + location.host;
+
+    var $table = $('#table').bootstrapTable({url: API_URL}),
+            $modal = $('#modal').modal({show: false}),
+            $modalupdate = $('#modalupdate').modal({show: false}),
+            $alert = $('.alert').hide();
+
+    function validateText(id) {
+        if ($("#" + id).val() == null || $("#" + id).val() == "") {
+            var div = $("#" + id).closest("div");
+            div.addClass("has-error");
+            return false;
+        }
+        else {
+            var div = $("#" + id).closest("div");
+            div.removeClass("has-error");
+            return true;
+        }
+    }
+
+    $(function () {
+        // create event
+        $('.create').click(function () {
+            showModal($(this).text());
+        });
+        $modal.find('.submit').click(function () {
+            var file_data = $('#fileid').prop('files')[0];
+            var form_data = new FormData();
+            form_data.append('file', file_data);
+
+            $modal.find('input[name]').each(function () {
+                form_data.append($(this).attr('name'), $(this).val());
+            });
+            $.ajax({
+                url: API_URL2 + '/' + ($modal.data('id') ? 'assets/?id=' + ($modal.data('id')) : ''),
+                type: $modal.data('id') ? 'put' : 'post',
+                contentType: false,
+                processData: false,
+                data: form_data,
+                success: function () {
+                    $('.progress-bar').hide();
+                    $table.bootstrapTable('refresh');
+                    $modal.modal('hide');
+                    $table.bootstrapTable('refresh');
+                    showAlert(($modal.data('id') ? 'Update' : 'Create') + ' item successful!', 'success');
+                    $table.bootstrapTable('refresh');
+                },
+                error: function () {
+                    $('.progress-bar').hide();
+                    $modal.modal('hide');
+                    showAlert(($modal.data('id') ? 'Update' : 'Create') + ' item error!', 'danger');
+                }
+            });
+        });
+    });
+    $(function () {
+        // update event
+        $('.update').click(function () {
+            showModalupdate($(this).text());
+        });
+        $modalupdate.find('.submitupdate').click(function () {
+            var file_data = $('#updatefileid').prop('files')[0];
+            var form_data = new FormData();
+            form_data.append('file', file_data);
+
+
+            $modalupdate.find('input[name]').each(function () {
+                form_data.append($(this).attr('name'), $(this).val());
+            });
+            $.ajax({
+                url: API_URL2 + '/' + ($modalupdate.data('id') ? 'assets/?id=' + ($modalupdate.data('id')) : ''),
+                type: $modalupdate.data('id') ? 'put' : 'post',
+                contentType: false,
+                processData: false,
+                data: form_data,
+                success: function () {
+                    $('.progress-bar').hide();
+                    $table.bootstrapTable('refresh');
+                    $modalupdate.modal('hide');
+                    $table.bootstrapTable('refresh');
+                    showAlert(($modalupdate.data('id') ? 'Update' : 'Create') + ' item successful!', 'success');
+                    $table.bootstrapTable('refresh');
+                },
+                error: function () {
+                    $('.progress-bar').hide();
+                    $modalupdate.modal('hide');
+                    showAlert(($modalupdate.data('id') ? 'Update' : 'Create') + ' item error!', 'danger');
+                }
+            });
+        });
+    });
+
+    function queryParams(params) {
+        return {};
+    }
+
+    function actionFormatter(value) {
+        return [
+            '<a class="update" href="javascript:" title="Update Item"><i class="glyphicon glyphicon-edit"></i></a>',
+            '<a class="remove" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-trash"></i></a>',
+        ].join('');
+    }
+    // update and delete events
+    window.actionEvents = {
+        'click .update': function (e, value, form_data) {
+            showModalupdate($(this).attr('title'), form_data);
+        },
+        'click .remove': function (e, value, row) {
+            if (confirm('Are you sure to delete this item?')) {
+                $.ajax({
+                    url: API_URL + '/' + '?id=' + row.id,
+                    type: 'delete',
+                    success: function () {
+                        $table.bootstrapTable('refresh');
+                        showAlert('Delete item successful!', 'success');
+                    },
+                    error: function () {
+                        showAlert('Delete item error!', 'danger');
+                    }
+                })
+            }
+        }
+
+    };
+
+    function showModal(title, form_data) {
+        form_data = form_data || {
+                    name: '',
+                    id: '',
+                    file: '',
+                };
+
+        $modal.data('id', form_data.id);
+        $modal.find('.modal-title').text(title);
+        for (var name in form_data) {
+            $modal.find('input[name="' + name + '"]').val(form_data[name]);
+        }
+        $modal.modal('show');
+    }
+
+
+    function showModalupdate(title, form_data) {
+        form_data = {
+            name: form_data.name,
+            id: form_data.id,
+            fileid: '0'
+        };
+        $modalupdate.data('id', form_data.id);
+        $modalupdate.find('.modal-title').text(title);
+        for (var name in form_data) {
+            $modalupdate.find('input[name="' + name + '"]').val(form_data[name]);
+        }
+        $modalupdate.modal('show');
+    }
+
+    function showAlert(title, type) {
+        $alert.attr('class', 'alert alert-' + type || 'success')
+                .html('<i class="glyphicon glyphicon-check"></i> ' + title).show();
+        setTimeout(function () {
+            $alert.hide();
+        }, 3000);
+    }
+
+
+</script>
+<div class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+        <p class="navbar-text pull-right">RAJSHEKHAR HORATTI</p>
+    </div>
+</div>
+</body>
+</html>
