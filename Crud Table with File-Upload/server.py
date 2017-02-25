@@ -54,8 +54,18 @@ def assets():
 
 @app.route("/assets/", methods=['DELETE'])
 def AssetDEL():
-    print('WRITE CODE TO DELETE ASSET')
-
+    id = request.args.get('id')
+    print(id)
+    with open('/home/raj/Documents/MyProjects/Crud Table with File-Upload/Assets/data.json') as f:
+        item = json.load(f)
+        for i in item:
+            if i.get('id') == id:
+                delassets = i
+                z = item.index(i)
+                del item[z]
+                with open('/home/raj/Documents/MyProjects/Crud Table with File-Upload/Assets/data.json', 'w') as f:
+                    json.dump(item, f)
+        return jsonify(delassets)
 
 @app.route("/assets/", methods=['GET'])
 def AssetGET():
@@ -70,7 +80,36 @@ def AssetGET():
 
 @app.route("/assets/", methods=['POST', 'PUT'])
 def AssetPUTPOST():
-    print('WRITE CODE TO UPDATE ASSET')
+    target = os.path.join(APP_ROOT)
+    name = request.form['name']
+    id = request.form['id']
+    videofile = request.form['file']
+    head, tail = ntpath.split(videofile)
+    print(target)
+    print(name, id, tail)
+    with open('/home/raj/Documents/MyProjects/Crud Table with File-Upload/Assets/data.json') as f:
+        item = json.load(f)
+        for i in item:
+            if i.get('id') == id:
+                print(i)
+                putpostasset = i
+                itemindex = item.index(i)
+                if i.get('name') != name:
+                    item[itemindex]['name'] = name
+                else:
+                    print(i.get('name'))
+                    item[itemindex]['name'] = i.get('name')
+                if tail != 'undefined':
+                    fil = i.get('file')
+                    Data = {
+                        'file': tail
+                    }
+                else:
+                    print(i.get('file'))
+                    item[itemindex]['file'] = i.get('file')
+                with open('/home/raj/Documents/MyProjects/Crud Table with File-Upload/Assets/data.json', 'w') as f:
+                    json.dump(item, f)
+                return jsonify(putpostasset)
 
 
 if __name__ == "__main__":
