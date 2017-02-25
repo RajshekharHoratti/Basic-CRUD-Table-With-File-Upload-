@@ -9,7 +9,7 @@ It also provided with Bootstrap and Web-Service with JSON data.
 `(1) HTML/CSS`
 `(2) JAVASCRIPT`
 `(3) AJAX`
-`(4) PYTHON 3`
+`(4) PYTHON`
 
 
 To Strat with the project just run the python file (Server.py):
